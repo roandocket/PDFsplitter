@@ -17,6 +17,17 @@ class ChapterDetector:
     
     def __init__(self):
         # TODO: Definir padrões regex para diferentes formatos de capítulos
+        # Capítulo 1
+        # cap. 1
+        # chapter 1
+        # Capítulo X
+
+        self.chapter_patterns = [
+            re.compile(r'^capítulo\s+\d+', re.IGNORECASE | re.MULTILINE),
+            re.compile(r'^cap\.\s*\d+', re.IGNORECASE | re.MULTILINE),
+            re.compile(r'^chapter\s+\d+', re.IGNORECASE | re.MULTILINE),
+            re.compile(r'^capítulo\s+[ivxlcdm]+', re.IGNORECASE | re.MULTILINE)
+        ]
         pass
         
     def detect_chapters(self, pages: List[Tuple[int, str]]) -> List[Dict]:
@@ -51,6 +62,9 @@ class ChapterDetector:
             True se for um título de capítulo
         """
         # TODO: Implementar verificação de título
+        for pattern in self.chapter_patterns:
+            if pattern.search(text.strip()):
+                return True
         return False
     
     def _extract_chapter_number(self, text: str) -> str:
