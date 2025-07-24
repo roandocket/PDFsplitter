@@ -9,30 +9,24 @@ import logging
 import os
 from pathlib import Path
 from src.pdf_processor import PDFProcessor
-from src.utils import setup_logging
-
 
 @click.command()
 @click.option('--input', '-i', 'input_file', required=True,
               help='Caminho para o arquivo PDF de entrada')
-@click.option('--output', '-o', 'output_dir', default='output',
-              help='Diretório de saída para os capítulos')
-@click.option('--verbose', '-v', is_flag=True,
-              help='Modo verboso para mais detalhes')
-def main(input_file, output_dir, verbose):
-    """
-    Extrai capítulos de um arquivo PDF e salva em arquivos separados.
-    """
-    # TODO: Implementar validação do arquivo de entrada
-    
-    # TODO: Configurar logging adequadamente
-    
-    # TODO: Processar o PDF usando a classe PDFProcessor
-    
-    # TODO: Exibir resultados do processamento
-    
-    pass
+@click.option('--output', '-o', 'output_dir', required=True,
+              help='Diretório para salvar os capítulos extraídos')
+@click.option('--font-size', '-f', 'font_size', default=16, show_default=True,
+              help='Tamanho mínimo da fonte para considerar como título')
+def main(input_file: str, output_dir: str, font_size: int):
+    logging.basicConfig(level=logging.INFO)
+
+    processor = PDFProcessor(font_size=font_size)
+    stats = processor.process_pdf(input_file, output_dir)
+
+    logging.info(f"✅ Processamento finalizado:")
+    logging.info(f"📄 Páginas processadas: {stats.get('paginas_processadas', stats.get('pages', 'N/A'))}")
+    logging.info(f"📚 Capítulos detectados: {stats.get('capitulos_detectados', stats.get('chapters', 'N/A'))}")
 
 
-if __name__ == '__main__':
-    main() 
+if __name__ == "__main__":
+    main()

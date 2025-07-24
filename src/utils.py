@@ -7,6 +7,7 @@ import logging
 import os
 from pathlib import Path
 from typing import Dict
+import re
 
 
 def setup_logging(level: int = logging.INFO) -> None:
@@ -18,8 +19,7 @@ def setup_logging(level: int = logging.INFO) -> None:
     Args:
         level: Nível de logging
     """
-    # TODO: Implementar configuração de logging
-    pass
+    logging.basicConfig(level=level, format='%(asctime)s %(levelname)s %(message)s')
 
 
 def create_book_output_directory(base_output_dir: str, book_name: str) -> Path:
@@ -35,8 +35,9 @@ def create_book_output_directory(base_output_dir: str, book_name: str) -> Path:
     Returns:
         Path do diretório criado
     """
-    # TODO: Implementar criação de diretórios
-    return Path(base_output_dir)
+    path = Path(base_output_dir) / book_name
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
 
 def save_chapter_pdf(content: str, output_path: str) -> bool:
@@ -52,8 +53,15 @@ def save_chapter_pdf(content: str, output_path: str) -> bool:
     Returns:
         True se salvo com sucesso
     """
-    # TODO: Implementar salvamento do PDF
-    return False
+    try:
+        from reportlab.pdfgen import canvas
+        c = canvas.Canvas(str(output_path))
+        c.drawString(72, 800, content[:1000])  # Salva só início do conteúdo para evitar quebra
+        c.save()
+        return True
+    except Exception as e:
+        logging.error(f"Erro ao salvar PDF: {e}")
+        return False
 
 
 def generate_report(stats: Dict) -> str:
@@ -68,8 +76,10 @@ def generate_report(stats: Dict) -> str:
     Returns:
         String com o relatório
     """
-    # TODO: Implementar geração de relatório
-    return ""
+    report = ["Relatório de Processamento:"]
+    for k, v in stats.items():
+        report.append(f"{k}: {v}")
+    return '\n'.join(report)
 
 
 def save_processing_report(stats: Dict, book_output_dir: Path) -> None:
@@ -82,8 +92,10 @@ def save_processing_report(stats: Dict, book_output_dir: Path) -> None:
         stats: Estatísticas do processamento
         book_output_dir: Diretório do livro
     """
-    # TODO: Implementar salvamento de relatório
-    pass
+    report = generate_report(stats)
+    report_path = Path(book_output_dir) / "relatorio.txt"
+    with open(report_path, "w", encoding="utf-8") as f:
+        f.write(report)
 
 
 def validate_pdf_file(file_path: str) -> bool:
@@ -98,5 +110,12 @@ def validate_pdf_file(file_path: str) -> bool:
     Returns:
         True se for um PDF válido
     """
-    # TODO: Implementar validação de PDF
-    return False 
+    try:
+        from pypdf import PdfReader
+        PdfReader(file_path)
+        return True
+    except Exception:
+        return False
+
+def sanitize_filename(name: str) -> str:
+    return re.sub(r'[^\w\-_\. ]', '_', name)
