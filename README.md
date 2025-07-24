@@ -211,3 +211,8 @@ python -m pytest --cov=src
 ---
 
 **Boa sorte no desenvolvimento! 🚀** # PDFsplitter
+
+
+Thiago martins:
+para rodar esse código:
+python main.py --input LivrosPDF/<livro-desejado>.pdf --output output/
